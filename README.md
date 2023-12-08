@@ -161,6 +161,84 @@ i mention host path and port no.
 $kubectl apply -f hello-world-ingress.yaml
 so have mapped AWS EC2 instance's DNS to Minikube cluster, i should be able to access the "Hello World" application through the specified path.
 
+# installing Ansible
+Install Ansible on the machine from which you'll be running the playbook.
+$sudo apt update # updating the system
+$sudo apt install ansible # installing Ansible
+# Create Ansible Playbook
+
+Create a file named deploy.yml.
+---
+- name: Deploy Nginx Ingress Controller and Sample Application with TLS
+  hosts: localhost
+  become: true
+  vars:
+    ingress_nginx_version: "latest"
+    hello_world_image: "hello-world:latest" 
+    tls_secret_name: "tls-secret"
+
+  tasks:
+    - name: Install kubectl
+      become: true
+      command: "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl /usr/local/bin/"
+
+    - name: Install helm
+      become: true
+      command: "curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash"
+
+    - name: Deploy Nginx Ingress Controller
+      become: true
+      shell: "helm upgrade --install nginx-ingress stable/nginx-ingress --version {{ ingress_nginx_version }}"
+
+    - name: Deploy Hello World Application
+      become: true
+      shell: "kubectl apply -f hello-world.yaml"
+      retries: 3
+      delay: 10
+
+    - name: Create TLS Secret
+      become: true
+      command: "kubectl create secret tls {{ tls_secret_name }} --cert=self-signed.crt --key=self-signed.key"
+      args:
+        chdir: "/path/to/cert/files"  # Replace with the actual path to your certificate files
+
+    - name: Configure Nginx Ingress for TLS Termination
+      become: true
+      shell: "kubectl apply -f ingress-tls.yaml"
+
+      # Create Self-Signed Certificate
+      Generate a self-signed certificate and private key. Save them as self-signed.crt and self-signed.key, respectively.
+
+$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout self-signed.key -out self-signed.crt
+
+# Create Ingress Manifest with TLS
+Create a file named ingress-tls.yaml:
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:65.0.125.81
+    secretName: tls-secret
+  rules:
+  - host:65.0.125.81
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world
+            port:
+              number: 80
+
+ # Run the Ansible Playbook
+ $ ansible-playbook deploy.yml
+ 
+
 
 
 
