@@ -1,1 +1,38 @@
+---
+- name: Deploy Nginx Ingress Controller and Sample Application with TLS
+  hosts: localhost
+  become: true
+  vars:
+    ingress_nginx_version: "latest"
+    hello_world_image: "hello-world:latest"  
+    tls_secret_name: "tls-secret"
+
+  tasks:
+    - name: Install kubectl
+      become: true
+      command: "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl /usr/local/bin/"
+
+    - name: Install helm
+      become: true
+      command: "curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash"
+
+    - name: Deploy Nginx Ingress Controller
+      become: true
+      shell: "helm upgrade --install nginx-ingress stable/nginx-ingress --version {{ ingress_nginx_version }}"
+
+    - name: Deploy Hello World Application
+      become: true
+      shell: "kubectl apply -f hello-world.yaml"
+      retries: 3
+      delay: 10
+
+    - name: Create TLS Secret
+      become: true
+      command: "kubectl create secret tls {{ tls_secret_name }} --cert=self-signed.crt --key=self-signed.key"
+      args:
+        chdir: "/root/files" 
+
+    - name: Configure Nginx Ingress for TLS Termination
+      become: true
+      shell: "kubectl apply -f ingress-tls.yaml"
 
