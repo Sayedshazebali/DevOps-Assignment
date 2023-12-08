@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - ec2-43-204-235-179.ap-south-1.compute.amazonaws.com
+    secretName: tls-secret
+  rules:
+  - host: ec2-43-204-235-179.ap-south-1.compute.amazonaws.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world
+            port:
+              number: 80
