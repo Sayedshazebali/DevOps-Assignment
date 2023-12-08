@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: hello-world
-        image: nginx:alpine  # A simple NGINX image for demonstration
+        image: hello-world
         ports:
         - containerPort: 80
