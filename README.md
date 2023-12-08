@@ -93,7 +93,76 @@ Check if the Nginx Ingress Controller pods are running:
 
 ![image](https://github.com/Sayedshazebali/DevOps-Assignment/assets/115386350/dd5fd12e-d532-4392-a2bb-8dae2b3b8298)
 
-# Create Basic Ingress Resource
+# Now Creating Deployment,service and ingress.yaml
+
+**deployment.yaml**
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: hello-world:latest
+        ports:
+        - containerPort: 80
+
+In this Deployment yml
+kind i take deployment because its deployment
+metadata name i agve the name
+in the spec
+i create 1 replica and create labels and selectors 
+in template, i create the container hello-world image.
+then i run the command $ kubectl apply -f hello-world-deployment.yaml
+# Create hello-world-service.yaml:
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world
+spec:
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+in this service file 
+i mention port and targetport to access the service.
+$ kubectl apply -f hello-world-service.yaml
+# Create hello-world-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+spec:
+  rules:
+  - host: ec2-65-0-125-81.ap-south-1.compute.amazonaws.com   # Public DNS
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world
+            port:
+              number: 80
+
+In Ingress, 
+i mention host path and port no.
+$kubectl apply -f hello-world-ingress.yaml
+so have mapped AWS EC2 instance's DNS to Minikube cluster, i should be able to access the "Hello World" application through the specified path.
+
+
+
 
 
 
