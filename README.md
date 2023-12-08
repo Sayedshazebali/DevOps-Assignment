@@ -72,14 +72,18 @@ As we already stated in the beginning we would be using docker as a base for min
 $ minikube start --force
 ![image](https://github.com/Sayedshazebali/DevOps-Assignment/assets/115386350/ac8e5f1f-5dcd-449a-b5b5-d3d61b5348d3)
 
+![image](https://github.com/Sayedshazebali/DevOps-Assignment/assets/115386350/134fba4c-95e5-41fa-a3d1-74f69582e20f)
+
 # checking the Nodes
 ![image](https://github.com/Sayedshazebali/DevOps-Assignment/assets/115386350/da534d89-72d0-4219-ba0b-2e197ee7cb6f)
 
 # Initialize helm
 we add the ingress-nginx Helm chart repository directly
+![image](https://github.com/Sayedshazebali/DevOps-Assignment/assets/115386350/93571dca-56d6-47fd-8caf-66b1733cf974)
+
 **$helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update**
-# install Nginx ingress Controller
+# install Nginx Ingress Controller
 Install the Nginx Ingress Controller using the newly added repository:
 **$helm install nginx-ingress ingress-nginx/ingress-nginx**
 
